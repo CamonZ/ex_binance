@@ -91,8 +91,8 @@ defmodule ExBinance.PublicApi do
     raise ArgumentError
   end
 
-  def get_candle_data(market, interval) when is_bitstring(market) and interval in @valid_candle_interval do
-    get_candle_data(%{symbol: market, interval: interval})
+  def get_candle_data(market, interval, limit \\ 500) when is_bitstring(market) and interval in @valid_candle_interval and is_integer(limit) do
+    get_candle_data(%{symbol: market, interval: interval, limit: limit})
   end
 
   def get_candle_data(%{symbol: market, interval: interval} = args) when is_bitstring(market) and interval in @valid_candle_interval do
@@ -114,7 +114,6 @@ defmodule ExBinance.PublicApi do
   def get_ticker(%{symbol: symbol}=args) do
     get("/v1/ticker/24hr", query: serialize(args)).body
   end
-
 
   # Helper functions
 
