@@ -1,5 +1,5 @@
 defmodule ExBinance.PublicApi do
-  alias ExBinance.Candle
+  alias ExBinance.{Candle, Market}
 
   use Tesla
 
@@ -36,9 +36,7 @@ defmodule ExBinance.PublicApi do
 
   def get_markets() do
     get_exchange_info()["symbols"]
-    |> Enum.map(fn symbol ->
-      %{baseCurrency: symbol["baseAsset"], quoteCurrency: symbol["quoteAsset"]}
-    end)
+    |> Market.build_series()
   end
 
   def get_depth(market) when is_bitstring(market) do
@@ -111,7 +109,7 @@ defmodule ExBinance.PublicApi do
     get_ticker(%{symbol: symbol})
   end
 
-  def get_ticker(%{symbol: symbol}=args) do
+  def get_ticker(args) do
     get("/v1/ticker/24hr", query: serialize(args)).body
   end
 
