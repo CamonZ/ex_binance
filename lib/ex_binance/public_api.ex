@@ -66,10 +66,10 @@ defmodule ExBinance.PublicApi do
   end
 
   def get_historical_trades(market) when is_bitstring(market) do
-    get_historical_trades(%{symbol: market, limit: nil, from_id: nil})
+    get_historical_trades(%{symbol: market})
   end
 
-  def get_historical_trades(%{symbol: _, limit: limit, from_id: id} = args) when is_map(args) and limit in 1..500 and is_integer(id) do
+  def get_historical_trades(args) when is_map(args) do
     get("/v1/historicalTrades", query: serialize(args)).body
   end
 
@@ -78,10 +78,10 @@ defmodule ExBinance.PublicApi do
   end
 
   def get_aggregate_trades(market) when is_bitstring(market) do
-    get_aggregate_trades(%{symbol: market, limit: nil, from_id: nil, start_time: nil, end_time: nil})
+    get_aggregate_trades(%{symbol: market})
   end
 
-  def get_aggregate_trades(%{symbol: _, limit: limit, from_id: id} = args) when is_map(args) and limit in 1..500 and is_integer(id) do
+  def get_aggregate_trades(args) when is_map(args) do
     get("/v1/aggTrades", query: serialize(args)).body
   end
 

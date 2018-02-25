@@ -21,6 +21,7 @@ defmodule ExBinance.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
       {:poison, "~> 3.1"},
       {:tesla, "~> 0.10.0"},
       {:decimal, "~> 1.0"}
