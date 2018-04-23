@@ -46,7 +46,5 @@ defmodule ExBinance.Candle do
     }
   end
 
-  defp parse_timestamp(ts) do
-    ts |> DateTime.from_unix!(:milliseconds)
-  end
+  defp parse_timestamp(ts), do: DateTime.from_unix!(ts, :milliseconds)
 end
