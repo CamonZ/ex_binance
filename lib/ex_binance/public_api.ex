@@ -10,34 +10,7 @@ defmodule ExBinance.PublicApi do
   @valid_candle_interval ["1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h",
                           "6h", "8h", "12h", "1d", "3d", "1w", "1M"]
 
-  # no op, returns empty body. used only to test connectivity
-  def ping do
-    get("/ping").body
-  end
 
-  def get_server_time do
-    get("/v1/time").body["serverTime"]
-    |> DateTime.from_unix!(:milliseconds)
-  end
-
-  def get_exchange_info do
-    get("/v1/exchangeInfo").body
-  end
-
-  def get_markets_for_quote_currency(currency) do
-    get_markets()
-    |> Enum.filter(fn pair -> pair[:quoteCurrency] == String.upcase(currency) end)
-  end
-
-  def get_markets_for_base_currency(currency) do
-    get_markets()
-    |> Enum.filter(fn pair -> pair[:baseCurrency] == String.upcase(currency) end)
-  end
-
-  def get_markets() do
-    get_exchange_info()["symbols"]
-    |> Market.build_series()
-  end
 
   def get_depth(market) when is_bitstring(market) do
     get_depth(%{symbol: market, limit: 100}) # 100 is the default value
