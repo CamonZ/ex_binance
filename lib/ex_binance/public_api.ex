@@ -10,34 +10,6 @@ defmodule ExBinance.PublicApi do
   @valid_candle_interval ["1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h",
                           "6h", "8h", "12h", "1d", "3d", "1w", "1M"]
 
-
-
-  def get_depth(market) when is_bitstring(market) do
-    get_depth(%{symbol: market, limit: 100}) # 100 is the default value
-  end
-
-  def get_depth(%{symbol: _, limit: limit} = args)
-      when is_map(args) and limit in @valid_depth_limits do
-    get("/v1/depth", query: serialize(args)).body
-  end
-
-  def get_depth(_) do
-    raise ArgumentError
-  end
-
-  def get_trades(market) when is_bitstring(market) do
-    # 500 is the default value
-    get_trades(%{symbol: market, limit: 500})
-  end
-
-  def get_trades(%{symbol: _, limit: limit} = args) when is_map(args) and limit in 1..500 do
-    get("/v1/trades", query: serialize(args)).body
-  end
-
-  def get_trades(_) do
-    raise ArgumentError
-  end
-
   def get_historical_trades(market) when is_bitstring(market) do
     get_historical_trades(%{symbol: market})
   end

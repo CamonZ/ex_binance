@@ -31,6 +31,10 @@ defmodule ExBinance.Exchange do
     |> new()
   end
 
+  def markets do
+    info().markets
+  end
+
   def new(%{"timezone" => tz, "serverTime" => ts, "rateLimits" => lims, "symbols" => syms}) do
     %Exchange{
       timezone: tz,
