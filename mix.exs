@@ -23,6 +23,7 @@ defmodule ExBinance.MixProject do
     [
       {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
       {:poison, "~> 3.1"},
+      {:websockex, "~> 0.4.0"},
       {:tesla, "~> 0.10.0"},
       {:decimal, "~> 1.0"}
     ]
