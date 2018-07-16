@@ -13,11 +13,15 @@
 # Ignore .fetch files in case you like to edit your project deps locally.
 /.fetch
 
+
 # If the VM crashes, it generates a dump, let's ignore it too.
 erl_crash.dump
 
 # Also ignore archive artifacts (built via "mix archive.build").
 *.ez
+
+# Ignore org mode files
+*.org
 
 # Ignore package tarball (built via "mix hex.build").
 ex_binance-*.tar
