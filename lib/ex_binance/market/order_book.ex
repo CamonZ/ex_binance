@@ -1,7 +1,6 @@
 defmodule ExBinance.Market.OrderBook do
-  use ExBinance.ApiClient
-
   alias ExBinance.Market
+  alias ExBinance.Market.PriceLevel
   alias __MODULE__
 
   defstruct [
@@ -11,14 +10,10 @@ defmodule ExBinance.Market.OrderBook do
   ]
 
   def new(%{"bids" => bids, "asks" => asks, "lastUpdateId" => id}) do
-    %__MODULE__{last_update_id: id, bids: build_side(bids), asks: build_side(asks)}
-  end
-
-  def new(_) do
-    %__MODULE__{}
-  end
-
-  defp build_side(side) do
-    Enum.reduce(side, %{}, fn ([p, s, _], acc) -> put_in(acc, [p], s) end)
+    %__MODULE__{
+      last_update_id: id,
+      bids: Enum.map(bids, &PriceLevel.new/1),
+      asks: Enum.map(asks, &PriceLevel.new/1)
+    }
   end
 end

@@ -8,25 +8,37 @@ defmodule ExBinance.Market.Trade do
     price: nil,
     size: nil,
     time: nil,
+    symbol: nil,
     is_buyer_maker: nil,
     is_best_match: nil
+
   ]
 
-  def new(data) when is_list(data) do
-    Enum.map(data, &new/1)
+  def new(data, %Market{} = market) when is_list(data) do
+    Enum.map(data, &(Trade.new(&1, market)))
   end
 
-  def new(data) when is_map(data) do
+  def new(%{"id" => id, "price" => p, "qty" => q, "time" => t, "isBuyerMaker" => m, "isBestMatch" =>  mm}, market) do
     %Trade{
-      id: data["id"],
-      price: data["price"],
-      size: data["qty"],
-      time: data["time"],
-      is_buyer_maker: data["isBuyerMaker"],
-      is_best_match: data["isBestMatch"]
+      id: id,
+      price: Decimal.new(p),
+      size: Decimal.new(q),
+      time: DateTime.from_unix!(t, :millisecond),
+      symbol: Market.full_name(market),
+      is_buyer_maker: m,
+      is_best_match: mm,
     }
   end
 
-  def recent(%Market{} = market) do
+  def new(%{"s" => s, "t" => t, "p" => p, "q" => q, "b" => b, "a" => a, "T" => tt, "m" => m}) do
+    %Trade{
+      id: t,
+      price: Decimal.new(p),
+      size: Decimal.new(q),
+      time: DateTime.from_unix!(tt, :millisecond),
+      symbol: s,
+      is_buyer_maker: m,
+      is_best_match: nil
+    }
   end
 end

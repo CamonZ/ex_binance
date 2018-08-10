@@ -46,7 +46,7 @@ defmodule ExBinance.Market do
   def trades(%Market{} = market) do
     "/v1/trades"
     |> get(query: %{symbol: full_name(market)}).body
-    |> Trade.new()
+    |> Trade.new(market)
   end
 
   def ticker(%Market{} = market) do

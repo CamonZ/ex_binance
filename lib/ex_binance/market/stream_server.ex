@@ -5,22 +5,24 @@ defmodule ExBinance.Market.StreamServer do
 
   defstruct [
     market: nil,
-    streams: []
+    streams: [],
+    callback: nil
   ]
 
-  @valid_streams ["trade", "depth", "ticker"]
+  @valid_streams ["trade", "depth"]
 
-  def start_link(%Market{} = market) do
-    start_link(market, @valid_streams)
+  def start_link(%Market{} = market, callback) do
+    start_link(market, callback, @valid_streams)
   end
 
-  def start_link(%Market{} = market, stream) when stream in @valid_streams do
+  def start_link(%Market{} = market, callback, stream) when stream in @valid_streams do
     start_link(market, [stream])
   end
 
-  def start_link(%Market{} = market, streams) when is_list(streams) do
+  def start_link(%Market{} = market, callback, streams) when is_list(streams) do
     state = %__MODULE__{
       market: sanitized_market_name(market),
+      callback: callback,
       streams: streams
     }
 
@@ -31,7 +33,22 @@ defmodule ExBinance.Market.StreamServer do
     )
   end
 
-  def handle_frame({_type, _msg}, state) do
+  def start_link(_) do
+    {:error, :argument_needs_to_be_market}
+  end
+
+  def handle_frame({_type, msg}, %{callback: {m, f}} = state) do
+    %{"data" => %{"e" => type} = data, "stream" => stream} = Poison.decode!(msg)
+
+    parsed_data = case type do
+                    "depthUpdate" ->
+                      Market.DepthUpdate.new(data)
+                    "trade" ->
+                      Market.Trade.new(data)
+                  end
+
+    apply(m, f, [parsed_data])
+
     {:ok, state}
   end
 
