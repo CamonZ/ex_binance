@@ -10,7 +10,9 @@ defmodule ExBinance.Market do
     status: nil,
     base_precision: nil,
     quote_precision: nil,
-    iceberg_allowed: false
+    iceberg_allowed: false,
+    filters: nil,
+    order_types: nil
   ]
 
   @field_mappings [
@@ -30,7 +32,11 @@ defmodule ExBinance.Market do
 
   def new(market) when is_map(market) do
     fields = Enum.map(@field_mappings, &(map_field(&1, market)))
-    struct(Market, fields)
+
+    Market
+    |> struct(fields)
+    |> Map.put(:filters, market["filters"])
+    |> Map.put(:order_types, market["orderTypes"])
   end
 
   def full_name(%Market{base_currency: base_cur, quote_currency: quote_cur}) do
