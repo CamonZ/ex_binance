@@ -1,15 +1,17 @@
-defmodule ExBinance.Market.StreamServer do
+defmodule ExBinance.Market.Stream do
+  require Logger
+
   use WebSockex
 
   alias ExBinance.Market
 
   defstruct [
-    market: nil,
+    markets: [],
     streams: [],
     callback: nil
   ]
 
-  @valid_streams ["trade", "depth"]
+  @valid_streams ["trade", "depth@100ms"]
 
   def start_link(%Market{} = market, callback) do
     start_link(market, callback, @valid_streams)
@@ -21,9 +23,23 @@ defmodule ExBinance.Market.StreamServer do
 
   def start_link(%Market{} = market, callback, streams) when is_list(streams) do
     state = %__MODULE__{
-      market: sanitized_market_name(market),
+      markets: [sanitized_market_name(market)],
       callback: callback,
       streams: streams
+    }
+
+    WebSockex.start_link(
+      endpoint(state),
+      __MODULE__,
+      state
+    )
+  end
+
+  def start_link(markets, callback) when is_list(markets) do
+    state = %__MODULE__{
+      markets: Enum.map(markets, &sanitized_market_name/1),
+      callback: callback,
+      streams: @valid_streams
     }
 
     WebSockex.start_link(
@@ -47,24 +63,28 @@ defmodule ExBinance.Market.StreamServer do
                       Market.Trade.new(data)
                   end
 
-    apply(m, f, [parsed_data])
+    # apply(m, f, [parsed_data])
+
+    Logger.info("Received: #{inspect(parsed_data)}")
 
     {:ok, state}
   end
 
-  defp sanitized_market_name(%Market{} = market) do
+  def sanitized_market_name(%Market{} = market) do
     market
     |> Market.full_name()
     |> String.downcase()
   end
 
   defp endpoint(%__MODULE__{} = state) do
-    "wss://stream.binance.com:9443/stream?streams=#{streams_names(state)}"
+    "wss://stream.binance.com:9443/stream?streams=#{stream_names(state)}"
   end
 
-  defp streams_names(%__MODULE__{market: market_name, streams: stream_names}) do
-    stream_names
-    |> Enum.map(&("#{market_name}@#{&1}"))
-    |> Enum.join("/")
+  def stream_names(%{markets: markets, streams: stream_names}) do
+    streams =
+      markets
+      |> Enum.map(fn market -> Enum.map(stream_names, fn stream -> "#{market}@#{stream}" end) end)
+      |> List.flatten()
+      |> Enum.join("/")
   end
 end

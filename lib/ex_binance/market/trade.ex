@@ -30,7 +30,7 @@ defmodule ExBinance.Market.Trade do
     }
   end
 
-  def new(%{"s" => s, "t" => t, "p" => p, "q" => q, "b" => b, "a" => a, "T" => tt, "m" => m}) do
+  def new(%{"s" => s, "t" => t, "p" => p, "q" => q, "b" => _, "a" => _, "T" => tt, "m" => m}) do
     %Trade{
       id: t,
       price: Decimal.new(p),
