@@ -44,6 +44,5 @@ defmodule ExBinance.Exchange do
     }
   end
 
-  defp parse_timestamp(timestamp), do: DateTime.from_unix!(timestamp, :milliseconds)
+  defp parse_timestamp(timestamp), do: DateTime.from_unix!(timestamp, :millisecond)
 end
-
