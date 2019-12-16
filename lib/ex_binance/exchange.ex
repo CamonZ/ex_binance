@@ -14,21 +14,26 @@ defmodule ExBinance.Exchange do
   alias ExBinance.Market
 
   def ping do
-    case get("/ping").body == {} do
-      true -> :ok
-      false -> {:error, :cant_connect_to_api}
+    case get("/v3/ping") do
+      {:ok, %{body: %{}}} -> :ok
+      _foo -> {:error, :cant_connect_to_api}
     end
   end
 
   def current_time do
-    get("/v1/time").body
-    |> Map.get("serverTime")
-    |> parse_timestamp()
+    with {:ok, %{body: body, status: 200}} <- get("/v3/time") do
+      body
+      |> Map.get("serverTime")
+      |> parse_timestamp()
+    end
   end
 
   def info() do
-    get("/v1/exchangeInfo").body
-    |> new()
+    with {:ok, %{body: body, status: 200}} <- get("/v3/exchangeInfo") do
+      new(body)
+    else
+      _ -> {:error, :cant_connect_to_api}
+    end
   end
 
   def markets do

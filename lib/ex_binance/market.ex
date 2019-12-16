@@ -1,9 +1,10 @@
 defmodule ExBinance.Market do
   use ExBinance.ApiClient
 
-  alias ExBinance.{Exchange, Market.OrderBook, Market.Trade}
+  alias ExBinance.{Market.OrderBook, Market.Trade}
   alias __MODULE__
 
+  @derive Jason.Encoder
   defstruct [
     base_currency: nil,
     quote_currency: nil,
@@ -44,19 +45,29 @@ defmodule ExBinance.Market do
   end
 
   def depth(%Market{} = market, limit \\ 100) when limit in @valid_depth_limits do
-    "/v1/depth"
-    |> get(query: %{symbol: full_name(market), limit: limit}).body
-    |> OrderBook.new()
+    opts = [query: %{symbol: full_name(market), limit: limit}]
+
+    with {:ok, %{body: body, status: 200}} <- get("/v3/depth", opts) do
+      OrderBook.new(body)
+    end
   end
 
   def trades(%Market{} = market) do
-    "/v1/trades"
-    |> get(query: %{symbol: full_name(market)}).body
-    |> Trade.new(market)
+    opts = [query: %{symbol: full_name(market)}]
+    with {:ok, %{body: body, status: 200}} <- get("/v3/trades", opts) do
+      Trade.new(body, market)
+    end
   end
 
   def ticker(%Market{} = market) do
-    get("/v1/ticker/24hr", query: %{symbol: full_name(market)}).body
+    opts = [query: %{symbol: full_name(market)}]
+
+    with {:ok, %{body: body, status: 200}} = r <- get("/v3/ticker/24hr", opts) do
+      body
+    else
+      _ ->
+        {:error, :cant_connect_to_api}
+    end
   end
 
   def all_quoted_in(markets, currency), do: Enum.filter(markets, &(is_quoted_in?(&1, currency)))

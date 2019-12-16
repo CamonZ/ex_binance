@@ -54,7 +54,7 @@ defmodule ExBinance.Market.Stream do
   end
 
   def handle_frame({_type, msg}, %{callback: {m, f}} = state) do
-    %{"data" => %{"e" => type} = data, "stream" => stream} = Poison.decode!(msg)
+    %{"data" => %{"e" => type} = data, "stream" => stream} = Jason.decode!(msg)
 
     parsed_data = case type do
                     "depthUpdate" ->
